@@ -1,0 +1,33 @@
+version: '3'
+services:
+    bnovo-nginx:
+        image: nginx:latest
+        ports:
+            - "81:80"
+            - "444:443"
+        volumes:
+            - ./docker/nginx/conf:/etc/nginx/conf.d
+            - ./:/var/www/bnovo
+            - ./docker/logs/nginx:/var/log/nginx
+        links:
+            - bnovo-php
+    bnovo-php:
+        build: ./docker/php
+        links:
+            - bnovo-mysql
+        volumes:
+            - ./:/var/www/bnovo
+    bnovo-mysql:
+        image: mysql:8.0
+        deploy:
+            restart_policy:
+                condition: any
+        ports:
+            - "3307:3306"
+        volumes:
+            - ./docker/mysql/data:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: bnovo
+            MYSQL_USER: user
+            MYSQL_PASSWORD: user
