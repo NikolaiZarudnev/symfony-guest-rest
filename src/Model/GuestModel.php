@@ -33,11 +33,16 @@ class GuestModel
     public function updateFromDto(Guest $guest, GuestDto $guestDto): Guest
     {
         $phone = $this->phoneService->convertToPhoneNumber($guestDto->getPhone());
+        if (empty($guestDto->getCountry())) {
+            $country = $this->phoneService->getCountryName($phone);
+        } else {
+            $country = $guestDto->getCountry();
+        }
         $guest
             ->setEmail($guestDto->getEmail())
             ->setFirstName($guestDto->getFirstName())
             ->setLastName($guestDto->getLastName())
-            ->setCountry($guestDto->getCountry())
+            ->setCountry($country)
             ->setPhone($phone)
         ;
 
