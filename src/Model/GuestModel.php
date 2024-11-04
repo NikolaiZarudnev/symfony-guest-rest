@@ -4,16 +4,21 @@ namespace App\Model;
 
 use App\Dto\GuestDto;
 use App\Entity\Guest;
+use App\Service\PhoneService;
 use Doctrine\ORM\EntityManagerInterface;
+use libphonenumber\NumberParseException;
 
 class GuestModel
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager
         private readonly EntityManagerInterface $entityManager,
+        private readonly PhoneService $phoneService,
     ) {
     }
 
+    /**
+     * @throws NumberParseException
+     */
     public function createFromDto(GuestDto $guestDto): Guest
     {
         $guest = new Guest();
@@ -22,14 +27,18 @@ class GuestModel
         return $guest;
     }
 
+    /**
+     * @throws NumberParseException
+     */
     public function updateFromDto(Guest $guest, GuestDto $guestDto): Guest
     {
+        $phone = $this->phoneService->convertToPhoneNumber($guestDto->getPhone());
         $guest
             ->setEmail($guestDto->getEmail())
             ->setFirstName($guestDto->getFirstName())
             ->setLastName($guestDto->getLastName())
-            ->setPhone($guestDto->getPhone())
             ->setCountry($guestDto->getCountry())
+            ->setPhone($phone)
         ;
 
         return $guest;
@@ -52,6 +61,7 @@ class GuestModel
             'country' => $guest->getCountry(),
         ];
     }
+
     public function delete(Guest $guest): void
     {
         $this->entityManager->remove($guest);

@@ -4,8 +4,10 @@ namespace App\Entity;
 
 use App\Repository\GuestRepository;
 use Doctrine\ORM\Mapping as ORM;
+use libphonenumber\PhoneNumber;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
+use Misd\PhoneNumberBundle\Validator\Constraints\PhoneNumber as AssertPhoneNumber;
 
 #[ORM\Entity(repositoryClass: GuestRepository::class)]
 #[UniqueEntity(
@@ -32,10 +34,10 @@ class Guest
     #[Assert\NotBlank]
     private ?string $lastName = null;
 
-    #[ORM\Column(length: 255, unique: true)]
+    #[ORM\Column(type: 'phone_number', length: 255, unique: true)]
     #[Assert\NotBlank]
-    #[Assert\Regex('/^\+?[0-9]+$/')]
-    private ?string $phone = null;
+    #[AssertPhoneNumber(type: [AssertPhoneNumber::MOBILE])]
+    private ?PhoneNumber $phone = null;
 
     #[ORM\Column(length: 255, unique: true, nullable: true)]
     #[Assert\Email]
@@ -75,12 +77,12 @@ class Guest
         return $this;
     }
 
-    public function getPhone(): ?string
+    public function getPhone(): ?PhoneNumber
     {
         return $this->phone;
     }
 
-    public function setPhone(string $phone): static
+    public function setPhone(PhoneNumber $phone): static
     {
         $this->phone = $phone;
 

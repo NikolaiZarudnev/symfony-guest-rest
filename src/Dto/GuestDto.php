@@ -3,7 +3,7 @@
 namespace App\Dto;
 
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Misd\PhoneNumberBundle\Validator\Constraints\PhoneNumber as AssertPhoneNumber;
 
 class GuestDto
 {
@@ -13,7 +13,7 @@ class GuestDto
         #[Assert\NotBlank]
         private readonly ?string $lastName = null,
         #[Assert\NotBlank]
-        #[Assert\Regex('/^\+?[0-9]+$/')]
+        #[AssertPhoneNumber(type: [AssertPhoneNumber::MOBILE])]
         private readonly ?string $phone = null,
         #[Assert\Email]
         private ?string          $email = null,
