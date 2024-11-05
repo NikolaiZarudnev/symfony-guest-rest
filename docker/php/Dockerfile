@@ -30,11 +30,15 @@ RUN set -eux \
         && docker-php-ext-configure zip \
         && docker-php-ext-install zip
 
+COPY ./docker-entrypoint.sh /usr/local/bin/docker-entrypoint
+
+RUN chmod +x /usr/local/bin/docker-entrypoint
+
 WORKDIR /var/www/bnovo
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 ADD php.ini /usr/local/etc/php/conf.d/40-custom.ini
 
-
+ENTRYPOINT ["docker-entrypoint"]
 CMD ["php-fpm"]
