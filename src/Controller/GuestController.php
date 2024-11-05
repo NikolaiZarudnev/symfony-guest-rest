@@ -31,6 +31,8 @@ class GuestController extends AbstractController
     #[Route('/guest', name: 'guest_list', methods: ['GET'])]
     public function list(): JsonResponse
     {
+        $this->startTime = getrusage()["ru_utime.tv_usec"];
+
         $guests = $this->guestRepository->findAll();
 
         $data = [];
@@ -46,6 +48,8 @@ class GuestController extends AbstractController
     #[Route('/guest', name: 'guest_create', methods: ['POST'])]
     public function create(Request $request): JsonResponse
     {
+        $this->startTime = getrusage()["ru_utime.tv_usec"];
+
         $guestCreateDto = $this->serializer->denormalize(
             $request->request->all(),
             GuestDto::class
@@ -77,6 +81,8 @@ class GuestController extends AbstractController
     #[Route('/guest/{id}', name: 'guest_show', methods: ['GET'])]
     public function show(?Guest $guest): JsonResponse
     {
+        $this->startTime = getrusage()["ru_utime.tv_usec"];
+
         if (null === $guest) {
             return $this->createResponse([], Response::HTTP_NOT_FOUND);
         }
@@ -91,6 +97,8 @@ class GuestController extends AbstractController
     #[Route('/guest/{id}', name: 'guest_update', methods: ['PUT'])]
     public function update(?Guest $guest, Request $request): JsonResponse
     {
+        $this->startTime = getrusage()["ru_utime.tv_usec"];
+
         if (null === $guest) {
             return $this->createResponse([], Response::HTTP_NOT_FOUND);
         }
@@ -126,6 +134,8 @@ class GuestController extends AbstractController
     #[Route('/guest/{id}', name: 'guest_delete', methods: ['DELETE'])]
     public function delete(?Guest $guest): JsonResponse
     {
+        $this->startTime = getrusage()["ru_utime.tv_usec"];
+
         if (null === $guest) {
             return $this->createResponse([], Response::HTTP_NOT_FOUND);
         }
