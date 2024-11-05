@@ -108,7 +108,7 @@ or
 
 ## Change a guest
 ### Request
-`PUT /guest`
+`PUT /guest/id`
 
     curl -X PUT -i http://localhost:81/guest/10 -H "Content-Type: application/x-www-form-urlencoded" -d "firstName=foo&lastName=bar&phone=%2bXXXXXXXXXXX&country=name&email=example@example.com"
 
