@@ -6,7 +6,7 @@ use App\Dto\GuestDto;
 use App\Entity\Guest;
 use App\Model\GuestModel;
 use App\Repository\GuestRepository;
-use App\Traits\ViolationsConverter;
+use App\Traits\ApiResponder;
 use Doctrine\DBAL\Driver\Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class GuestController extends AbstractController
 {
-    use ViolationsConverter;
+    use ApiResponder;
 
     public function __construct(
         private readonly GuestRepository $guestRepository,
@@ -38,9 +38,9 @@ class GuestController extends AbstractController
             $data[] = $this->guestModel->asArray($guest);
         }
 
-        return $this->json([
-            'guests' => $data
-        ], Response::HTTP_OK);
+        return $this->createResponse([
+            'guests' => $data,
+        ]);
     }
 
     #[Route('/guest', name: 'guest_create', methods: ['POST'])]
@@ -53,48 +53,46 @@ class GuestController extends AbstractController
 
         $errors = $this->validator->validate($guestCreateDto);
         if (count($errors) > 0) {
-            $data = $this->convertToArray($errors);
-
-            return $this->json($data, Response::HTTP_BAD_REQUEST);
+            return $this->createFailedValidationResponse($errors);
         }
 
         try {
             $guest = $this->guestModel->createFromDto($guestCreateDto);
         } catch (\Exception $exception) {
-            return $this->json([
+            return $this->createResponse([
                 'error' => 'Something went wrong'
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         $errors = $this->validator->validate($guest);
         if (count($errors) > 0) {
-            $data = $this->convertToArray($errors);
-
-            return $this->json($data, Response::HTTP_BAD_REQUEST);
+            return $this->createFailedValidationResponse($errors);
         }
 
         $this->guestModel->save($guest);
 
-        return $this->json([], Response::HTTP_CREATED);
+        return $this->createResponse([], Response::HTTP_CREATED);
     }
 
     #[Route('/guest/{id}', name: 'guest_show', methods: ['GET'])]
     public function show(?Guest $guest): JsonResponse
     {
         if (null === $guest) {
-            return $this->json([], Response::HTTP_NOT_FOUND);
+            return $this->createResponse([], Response::HTTP_NOT_FOUND);
         }
 
         $data = $this->guestModel->asArray($guest);
 
-        return $this->json(['guest' => $data], Response::HTTP_OK);
+        return $this->createResponse([
+            'guest' => $data,
+        ]);
     }
 
     #[Route('/guest/{id}', name: 'guest_update', methods: ['PUT'])]
     public function update(?Guest $guest, Request $request): JsonResponse
     {
         if (null === $guest) {
-            return $this->json([], Response::HTTP_NOT_FOUND);
+            return $this->createResponse([], Response::HTTP_NOT_FOUND);
         }
 
         $guestUpdateDto = $this->serializer->denormalize(
@@ -104,46 +102,42 @@ class GuestController extends AbstractController
 
         $errors = $this->validator->validate($guestUpdateDto);
         if (count($errors) > 0) {
-            $data = $this->convertToArray($errors);
-
-            return $this->json($data, Response::HTTP_BAD_REQUEST);
+            return $this->createFailedValidationResponse($errors);
         }
 
         try {
             $guest = $this->guestModel->updateFromDto($guest, $guestUpdateDto);
         } catch (\Exception $exception) {
-            return $this->json([
+            return $this->createResponse([
                 'error' => 'Something went wrong'
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         $errors = $this->validator->validate($guest);
         if (count($errors) > 0) {
-            $data = $this->convertToArray($errors);
-
-            return $this->json($data, Response::HTTP_BAD_REQUEST);
+            return $this->createFailedValidationResponse($errors);
         }
 
         $this->guestModel->save($guest);
 
-        return $this->json([], Response::HTTP_OK);
+        return $this->createResponse([]);
     }
 
     #[Route('/guest/{id}', name: 'guest_delete', methods: ['DELETE'])]
     public function delete(?Guest $guest): JsonResponse
     {
         if (null === $guest) {
-            return $this->json([], Response::HTTP_NOT_FOUND);
+            return $this->createResponse([], Response::HTTP_NOT_FOUND);
         }
 
         try {
             $this->guestModel->delete($guest);
         } catch (Exception $exception) {
-            return $this->json([
+            return $this->createResponse([
                 'error' => 'Something went wrong'
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return $this->json([], Response::HTTP_OK);
+        return $this->createResponse([]);
     }
 }
