@@ -17,6 +17,8 @@ services:
             - bnovo-mysql
         volumes:
             - ./:/var/www/bnovo
+        environment:
+            DATABASE_URL: mysql://user:user@bnovo-mysql/bnovo?serverVersion=8.0.32&charset=utf8mb4
     bnovo-mysql:
         image: mysql:8.0
         deploy:
