@@ -128,7 +128,7 @@ or
 
 ## Change a guest - bad request
 ### Request
-`PATCH /guest/id`
+`PUT /guest/id`
 
     curl -X PUT -i http://localhost:81/guest/10 -H "Content-Type: application/x-www-form-urlencoded" -d ""
 
